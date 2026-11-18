@@ -1,0 +1,45 @@
+plugins { id 'com.android.application' }
+
+def keystorePath = System.getenv('KEYSTORE_FILE')
+def keystorePassword = System.getenv('KEYSTORE_PASSWORD')
+def uploadAlias = System.getenv('KEY_ALIAS')
+def uploadKeyPassword = System.getenv('KEY_PASSWORD')
+def hasUploadSigning = keystorePath && keystorePassword && uploadAlias && uploadKeyPassword
+
+android {
+    namespace 'pl.quiz.europa'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'pl.quiz.europa'
+        minSdk 26
+        targetSdk 36
+        versionCode 8
+        versionName '1.3.3'
+    }
+
+    signingConfigs {
+        if (hasUploadSigning) {
+            release {
+                storeFile file(keystorePath)
+                storePassword keystorePassword
+                keyAlias uploadAlias
+                keyPassword uploadKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            if (hasUploadSigning) signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
